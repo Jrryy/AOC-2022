@@ -1,0 +1,1 @@
+The input files should go here. Their names must be `dd.txt`, where `dd` is the day of the input's challenge, with leading zeros.
