@@ -8,6 +8,7 @@ import (
 
 var days = []func(){
 	challenges.Day01,
+	challenges.Day02,
 }
 
 func main() {
