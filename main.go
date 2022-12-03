@@ -9,14 +9,18 @@ import (
 var days = []func(){
 	challenges.Day01,
 	challenges.Day02,
+	challenges.Day03,
 }
 
 func main() {
+	totalElapsed := time.Duration(0)
 	for day, challenge := range days {
 		fmt.Printf("Day %02d\n", day+1)
 		start := time.Now()
 		challenge()
 		elapsed := time.Since(start)
 		fmt.Printf("Elapsed: %v\n", elapsed)
+		totalElapsed += elapsed
 	}
+	fmt.Printf("Total elapsed time: %v\n", totalElapsed)
 }
