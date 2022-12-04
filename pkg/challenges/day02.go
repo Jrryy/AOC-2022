@@ -4,7 +4,6 @@ import "AOC-2022/pkg/utils"
 
 func Day02() {
 	input := utils.ImportInputLines(2)
-	input = input[:len(input)-1]
 
 	points := 0
 	points2 := 0

@@ -18,7 +18,7 @@ func ImportInput(day int) string {
 
 func ImportInputLines(day int) []string {
 	rawInput := ImportInput(day)
-	return strings.Split(rawInput, "\n")
+	return strings.Split(strings.TrimRight(rawInput, "\n"), "\n")
 }
 
 func ImportInputLinesInt(day int) []int {
