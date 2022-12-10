@@ -14,11 +14,24 @@ type position struct {
 func Day09() {
 	input := utils.ImportInputLines(9)
 
-	// Yeah, I initialized TWO 1000x1000 matrices for this challenge. Sue me.
-	visited := make(map[position]any)
-	visited2 := make(map[position]any)
+	// Yeah, I initialized TWO 700x700 matrices for this challenge. Sue me.
+	visited := make([][]bool, 700)
+	for i := range visited {
+		visited[i] = make([]bool, 700)
+	}
+
+	visited2 := make([][]bool, 700)
+	for i := range visited2 {
+		visited2[i] = make([]bool, 700)
+	}
 
 	rope := make([]position, 10)
+	for i := range rope {
+		rope[i] = position{350, 350}
+	}
+
+	totalVisited := 0
+	totalVisited2 := 0
 
 	for _, line := range input {
 		splitLine := strings.Split(line, " ")
@@ -36,50 +49,33 @@ func Day09() {
 				rope[0].x--
 			}
 			for i := 1; i < 10; i++ {
-				switch rope[i-1] {
-				case position{rope[i].x + 2, rope[i].y}:
-					rope[i].x++
-				case position{rope[i].x - 2, rope[i].y}:
+				dx := rope[i].x - rope[i-1].x
+				dy := rope[i].y - rope[i-1].y
+				if dx <= 1 && dx >= -1 && dy <= 1 && dy >= -1 {
+					break
+				}
+				if dx > 0 {
 					rope[i].x--
-				case position{rope[i].x, rope[i].y + 2}:
-					rope[i].y++
-				case position{rope[i].x, rope[i].y - 2}:
-					rope[i].y--
-				case position{rope[i].x + 2, rope[i].y + 2}:
-					fallthrough
-				case position{rope[i].x + 2, rope[i].y + 1}:
-					fallthrough
-				case position{rope[i].x + 1, rope[i].y + 2}:
+				} else if dx < 0 {
 					rope[i].x++
-					rope[i].y++
-				case position{rope[i].x + 2, rope[i].y - 2}:
-					fallthrough
-				case position{rope[i].x + 2, rope[i].y - 1}:
-					fallthrough
-				case position{rope[i].x + 1, rope[i].y - 2}:
-					rope[i].x++
+				}
+				if dy > 0 {
 					rope[i].y--
-				case position{rope[i].x - 2, rope[i].y + 2}:
-					fallthrough
-				case position{rope[i].x - 2, rope[i].y + 1}:
-					fallthrough
-				case position{rope[i].x - 1, rope[i].y + 2}:
-					rope[i].x--
+				} else if dy < 0 {
 					rope[i].y++
-				case position{rope[i].x - 2, rope[i].y - 2}:
-					fallthrough
-				case position{rope[i].x - 2, rope[i].y - 1}:
-					fallthrough
-				case position{rope[i].x - 1, rope[i].y - 2}:
-					rope[i].x--
-					rope[i].y--
 				}
 			}
-			visited[rope[1]] = nil
-			visited2[rope[9]] = nil
+			if !visited[rope[1].x][rope[1].y] {
+				visited[rope[1].x][rope[1].y] = true
+				totalVisited++
+			}
+			if !visited2[rope[9].x][rope[9].y] {
+				visited2[rope[9].x][rope[9].y] = true
+				totalVisited2++
+			}
 		}
 	}
 
-	println(len(visited))
-	println(len(visited2))
+	println(totalVisited)
+	println(totalVisited2)
 }
