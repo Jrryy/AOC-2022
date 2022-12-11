@@ -39,7 +39,7 @@ func Day11() {
 
 	monkeyDataList := strings.Split(rawInput, "\n\n")
 	monkeys := make([]*monkey, len(monkeyDataList))
-	mcd := 1
+	GCD := 1
 	for i, monkeyData := range monkeyDataList {
 		monkeyLines := strings.Split(monkeyData, "\n")
 
@@ -64,7 +64,7 @@ func Day11() {
 		}
 
 		testNumber, _ := strconv.Atoi(strings.Split(monkeyLines[3], "by ")[1])
-		mcd *= testNumber
+		GCD *= testNumber
 
 		testTrue := monkeyLines[4][len(monkeyLines[4])-1] - '0'
 
@@ -96,7 +96,7 @@ func Day11() {
 
 			m.inspected2 += len(m.items2)
 			for _, item := range m.items2 {
-				newItem := m.operation(item) % mcd
+				newItem := m.operation(item) % GCD
 				if newItem%m.test == 0 {
 					monkeys[m.trueMonkey].items2 = append(monkeys[m.trueMonkey].items2, newItem)
 				} else {
@@ -111,7 +111,7 @@ func Day11() {
 		for _, m := range monkeys {
 			m.inspected2 += len(m.items2)
 			for _, item := range m.items2 {
-				newItem := m.operation(item) % mcd
+				newItem := m.operation(item) % GCD
 				if newItem%m.test == 0 {
 					monkeys[m.trueMonkey].items2 = append(monkeys[m.trueMonkey].items2, newItem)
 				} else {
