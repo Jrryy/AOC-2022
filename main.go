@@ -18,6 +18,7 @@ var days = []func(){
 	challenges.Day09,
 	challenges.Day10,
 	challenges.Day11,
+	challenges.Day12,
 }
 
 func main() {
