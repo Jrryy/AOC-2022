@@ -16,5 +16,6 @@ Benchmarks:
 |  Day 10   |         65µs         |
 |  Day 11   |         22ms         |
 |  Day 12   |         13ms         |
+|  Day 13   |        630µs         |
 
 Ran on Ubuntu 20.04, AMD Ryzen 5 5600X, 16GB 3600MHz RAM.
