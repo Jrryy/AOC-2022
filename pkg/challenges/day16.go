@@ -7,15 +7,6 @@ import (
 	"sync"
 )
 
-func contains[T comparable](array []T, item T) bool {
-	for _, _item := range array {
-		if _item == item {
-			return true
-		}
-	}
-	return false
-}
-
 func bfs(toVisit [][]string, valves map[string][]string, pressures map[string]int) map[string]int {
 	visited := []string{toVisit[0][0]}
 	distances := make(map[string]int)
@@ -27,7 +18,7 @@ func bfs(toVisit [][]string, valves map[string][]string, pressures map[string]in
 			}
 			nextValves := valves[currentValve]
 			for _, nextValve := range nextValves {
-				if !contains(visited, nextValve) {
+				if !utils.Contains(visited, nextValve) {
 					nextToVisit = append(nextToVisit, nextValve)
 					visited = append(visited, nextValve)
 				}
@@ -54,7 +45,7 @@ func findBestPressure(
 		return accumulatedPressure - minutePressure*(minutes-maxMinutes)
 	}
 	var bestPressure int
-	if !contains(opened, currentValve) {
+	if !utils.Contains(opened, currentValve) {
 		return findBestPressure(
 			append(opened, currentValve),
 			currentValve,
@@ -68,7 +59,7 @@ func findBestPressure(
 	}
 	nextValves := distances[currentValve]
 	for valve, distance := range nextValves {
-		if contains(opened, valve) {
+		if utils.Contains(opened, valve) {
 			continue
 		}
 		nextBestPressure := findBestPressure(
@@ -94,11 +85,15 @@ func findBestPressure(
 
 func findNewSubset(valves []string, maxSize int, currentSubset []string, index int) [][]string {
 	if len(currentSubset) == maxSize {
-		return [][]string{currentSubset}
+		result := make([]string, maxSize)
+		copy(result, currentSubset)
+		return [][]string{result}
 	}
 	var subsets [][]string
 	for i := index; i <= len(valves)-maxSize+len(currentSubset); i++ {
-		subsets = append(subsets, findNewSubset(valves, maxSize, append(currentSubset, valves[i]), i+1)...)
+		for _, newSubset := range findNewSubset(valves, maxSize, append(currentSubset, valves[i]), i+1) {
+			subsets = append(subsets, newSubset)
+		}
 	}
 	return subsets
 }
@@ -113,41 +108,6 @@ func findAllSubsets(distances map[string]map[string]int) [][]string {
 		subsets = append(subsets, findNewSubset(valves, i, []string{}, 0)...)
 	}
 	return subsets
-}
-
-func findMaxPath(
-	distances map[string]map[string]int,
-	pressures map[string]int,
-	current string,
-	remaining []string,
-	minutes int,
-) int {
-	maxPressure := 0
-	if len(remaining) == 0 {
-		return pressures[current] * (26 - minutes)
-	}
-	for _, valve := range remaining {
-		if distances[current][valve] > 26-minutes {
-			continue
-		}
-		var nextRemaining []string
-		for _, item := range remaining {
-			if item != valve {
-				nextRemaining = append(nextRemaining, item)
-			}
-		}
-		nextPressure := pressures[current]*(26-minutes) + findMaxPath(
-			distances,
-			pressures,
-			valve,
-			nextRemaining,
-			minutes+distances[current][valve]+1,
-		)
-		if nextPressure > maxPressure {
-			maxPressure = nextPressure
-		}
-	}
-	return maxPressure
 }
 
 func Day16() {
@@ -192,37 +152,61 @@ func Day16() {
 
 	println(bestPressure)
 	subsets := findAllSubsets(distancesMap)
+	bestPressurePerSubset := make([]int, len(subsets))
 
 	var wg sync.WaitGroup
-	maxPressure := 0
-	for i := 1; i <= 10; i++ {
+	for i := 0; i < 10; i++ {
 		wg.Add(1)
 
 		go func(startJ int) {
 			defer wg.Done()
-			for j := startJ - 1; j < len(subsets1); j += 10 {
-				nextMaxPressure1 := findMaxPath(
+			for j := startJ; j < len(subsets); j += 10 {
+				opened := []string{"AA"}
+				for valve := range distancesMap["AA"] {
+					if !utils.Contains(subsets[j], valve) {
+						opened = append(opened, valve)
+					}
+				}
+				bestPressurePerSubset[j] = findBestPressure(
+					opened,
+					"AA",
 					distancesMap,
 					pressures,
-					"AA",
-					subsets1[j],
 					0,
-				)
-				nextMaxPressure2 := findMaxPath(
-					distancesMap,
-					pressures,
-					"AA",
-					subsets2[j],
 					0,
+					0,
+					26,
 				)
-				nextMaxPressure := nextMaxPressure1 + nextMaxPressure2
-				// fmt.Println(nextMaxPressure)
-				if nextMaxPressure > maxPressure {
-					maxPressure = nextMaxPressure
+			}
+		}(i)
+	}
+	wg.Wait()
+
+	maxPressure := 0
+	var mutex sync.Mutex
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func(startJ int) {
+			defer wg.Done()
+			for j := startJ; j < len(subsets)-1; j += 10 {
+			nextSubset:
+				for k := j; k < len(subsets); k++ {
+					for _, item := range subsets[j] {
+						if utils.Contains(subsets[k], item) {
+							continue nextSubset
+						}
+					}
+					currentPressure := bestPressurePerSubset[j] + bestPressurePerSubset[k]
+					mutex.Lock()
+					if currentPressure > maxPressure {
+						maxPressure = currentPressure
+					}
+					mutex.Unlock()
 				}
 			}
 		}(i)
 	}
 	wg.Wait()
+
 	println(maxPressure)
 }

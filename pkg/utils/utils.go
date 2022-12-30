@@ -64,3 +64,12 @@ func Abs(a int) int {
 	}
 	return a
 }
+
+func Contains[T comparable](array []T, item T) bool {
+	for _, _item := range array {
+		if _item == item {
+			return true
+		}
+	}
+	return false
+}
